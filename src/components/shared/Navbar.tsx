@@ -1,12 +1,21 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
 import { useLocale } from "@/components/shared/LocaleProvider"
+import { loadSession, clearSession } from "@/lib/auth/session"
 
 export function Navbar() {
   const pathname = usePathname()
+  const router = useRouter()
   const { t, locale, setLocale } = useLocale()
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+
+  // Re-check auth state when pathname changes
+  useEffect(() => {
+    setIsLoggedIn(!!loadSession())
+  }, [pathname])
 
   const links = [
     { href: "/feed", label: t.nav.feed },
@@ -14,8 +23,13 @@ export function Navbar() {
     { href: "/verify", label: t.nav.verify },
   ]
 
-  // Quick toggle between English and Pidgin
   const toggleLocale = () => setLocale(locale === "en" ? "pcm" : "en")
+
+  const handleLogout = () => {
+    clearSession()
+    setIsLoggedIn(false)
+    router.push("/")
+  }
 
   return (
     <nav className="sticky top-0 z-50 border-b border-zinc-800 bg-black/80 backdrop-blur-md">
@@ -50,12 +64,21 @@ export function Navbar() {
             {locale === "en" ? "EN" : "PCM"}
           </button>
           
-          <Link
-            href="/auth/login"
-            className="rounded-full bg-emerald-500 px-4 py-1.5 text-sm font-semibold text-black transition-opacity hover:opacity-90"
-          >
-            {t.nav.login}
-          </Link>
+          {isLoggedIn ? (
+            <button
+              onClick={handleLogout}
+              className="rounded-full border border-red-500/30 bg-red-500/10 px-4 py-1.5 text-sm font-semibold text-red-400 transition-colors hover:bg-red-500/20"
+            >
+              Logout
+            </button>
+          ) : (
+            <Link
+              href="/auth/login"
+              className="rounded-full bg-emerald-500 px-4 py-1.5 text-sm font-semibold text-black transition-opacity hover:opacity-90"
+            >
+              {t.nav.login}
+            </Link>
+          )}
         </div>
       </div>
       
