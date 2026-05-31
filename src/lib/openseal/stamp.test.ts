@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest"
+import { sha256 } from "@noble/hashes/sha2.js"
 import { hashContent } from "@/lib/openseal/stamp"
 
 describe("hashContent", () => {

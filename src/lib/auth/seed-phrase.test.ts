@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest"
 import { keyToSeedWords, seedWordsToKey } from "@/lib/auth/seed-phrase"
 import { deriveKeyFromAnswers } from "@/lib/auth/derive-key"
-import { bytesToHex } from "@noble/hashes/utils"
+import { bytesToHex } from "@noble/hashes/utils.js"
 
 const VALID_ANSWERS = ["chidi@gmail.com", "Adaobi", "1998", "mango"]
 
@@ -15,7 +15,7 @@ describe("seed phrase round-trip", () => {
     expect(wordsResult.ok).toBe(true)
     if (!wordsResult.ok) return
 
-    expect(wordsResult.value.length).toBe(12)
+    expect(wordsResult.value.length).toBe(24)
 
     const recoveredResult = seedWordsToKey(wordsResult.value)
     expect(recoveredResult.ok).toBe(true)
