@@ -1,50 +1,13 @@
 {
   "nav": {
-    "feed": "Stories",
-    "elections": "Elections",
+    "feed": "Feed",
     "write": "Write",
-    "profile": "Profile",
-    "logout": "Log Out"
-  },
-  "auth": {
-    "create_title": "Create Your Account",
-    "create_subtitle": "Answer 4 questions only you know. We never store your answers.",
-    "question_email": "Your email address",
-    "question_mothers_name": "Your mother's first name",
-    "question_year": "A year you will never forget",
-    "question_secret": "A secret word only you know",
-    "generate_button": "Generate My Account",
-    "seed_title": "Your 12 Backup Words",
-    "seed_subtitle": "Write these down or download the PDF. If you forget your answers, these words restore your account.",
-    "seed_confirm": "I have saved my 12 words",
-    "seed_download": "Download PDF",
-    "login_title": "Welcome Back",
-    "login_answers_tab": "Use My Answers",
-    "login_words_tab": "Use Backup Words",
-    "login_button": "Log In",
-    "error_insufficient_answers": "Please fill in all 4 fields.",
-    "error_invalid_mnemonic": "Those words are not valid. Please check them and try again."
-  },
-  "editor": {
-    "title_placeholder": "Story title",
-    "body_placeholder": "Write your story...",
-    "openseal_label": "OpenSeal on Bitcoin",
-    "openseal_hint": "Creates permanent, tamper-proof evidence of this publication.",
-    "publish_button": "Publish to AfrikaPress",
-    "publishing": "Publishing...",
-    "published": "Published!"
+    "verify": "Verify",
+    "login": "Login"
   },
   "feed": {
+    "title": "Latest Stories",
     "empty": "No stories yet. Be the first to publish.",
-    "sealed_badge": "OpenSealed",
-    "zap_count": "{count} Zaps"
-  },
-  "verify": {
-    "title": "Verify an Article",
-    "input_placeholder": "Paste a Nostr event ID or article link",
-    "verify_button": "Verify",
-    "verified": "Verified — existed at Bitcoin Block #{block}",
-    "pending": "Timestamp pending — check back in 1 hour",
-    "unverified": "Could not verify this article"
+    "error": "Failed to load stories. Are you offline?"
   }
 }

@@ -1,11 +1,13 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { useLocale } from "@/components/shared/LocaleProvider"
 import { fetchLatestArticles } from "@/lib/nostr/fetch-feed"
 import { ArticleCard } from "@/components/feed/ArticleCard"
 import type { ArticleEvent } from "@/lib/types/nostr"
 
 export default function FeedPage() {
+  const { t } = useLocale()
   const [articles, setArticles] = useState<ArticleEvent[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState("")
@@ -17,7 +19,7 @@ export default function FeedPage() {
       if (res.ok) {
         setArticles(res.value)
       } else {
-        setError("Failed to load stories. Are you offline?")
+        setError(t.feed.error)
       }
       setIsLoading(false)
     }
@@ -28,7 +30,7 @@ export default function FeedPage() {
   return (
     <div className="mx-auto max-w-2xl p-4 pt-8">
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-white">Latest Stories</h1>
+        <h1 className="text-2xl font-bold text-white">{t.feed.title}</h1>
       </div>
 
       {isLoading && (
@@ -45,7 +47,7 @@ export default function FeedPage() {
 
       {!isLoading && !error && articles.length === 0 && (
         <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-12 text-center">
-          <p className="text-zinc-400">No stories yet. Be the first to publish.</p>
+          <p className="text-zinc-400">{t.feed.empty}</p>
         </div>
       )}
 

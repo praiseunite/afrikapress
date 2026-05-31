@@ -36,7 +36,7 @@ export async function fetchLatestArticles(
         kind: 30023,
         tags: e.tags,
         content: e.content,
-        sig: e.sig,
+        sig: e.sig || "",
         title: titleTag ? titleTag[1] : "Untitled Story",
         otsProof: otsTag ? otsTag[1] : undefined,
         isSealed: !!otsTag,

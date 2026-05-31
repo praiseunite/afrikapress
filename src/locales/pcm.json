@@ -1,50 +1,13 @@
 {
   "nav": {
-    "feed": "Stories",
-    "elections": "Election",
+    "feed": "Gist",
     "write": "Write",
-    "profile": "Profile",
-    "logout": "Log Out"
-  },
-  "auth": {
-    "create_title": "Make Your Account",
-    "create_subtitle": "Answer 4 questions wey only you sabi. We no go save any of your answers.",
-    "question_email": "Your email address",
-    "question_mothers_name": "Wetin be your mama first name?",
-    "question_year": "One year wey you go remember forever",
-    "question_secret": "One secret word wey only you sabi",
-    "generate_button": "Create My Account",
-    "seed_title": "Your 12 Backup Words",
-    "seed_subtitle": "Write dem down or download PDF. If you forget your answers, use these words to enter your account again.",
-    "seed_confirm": "I don save my 12 words",
-    "seed_download": "Download PDF",
-    "login_title": "Welcome Back",
-    "login_answers_tab": "Use My Answers",
-    "login_words_tab": "Use Backup Words",
-    "login_button": "Enter My Account",
-    "error_insufficient_answers": "Abeg fill all 4 places.",
-    "error_invalid_mnemonic": "Those words no correct. Check am again."
-  },
-  "editor": {
-    "title_placeholder": "Wetin be your story title?",
-    "body_placeholder": "Write your story here...",
-    "openseal_label": "OpenSeal on Bitcoin",
-    "openseal_hint": "Dis go put permanent proof of your story on Bitcoin. Nobody fit change am.",
-    "publish_button": "Post to AfrikaPress",
-    "publishing": "E dey go...",
-    "published": "E don go!"
+    "verify": "Checkam",
+    "login": "Enter"
   },
   "feed": {
-    "empty": "Story never dey here. You fit be the first to post.",
-    "sealed_badge": "OpenSealed",
-    "zap_count": "{count} Zaps"
-  },
-  "verify": {
-    "title": "Verify One Article",
-    "input_placeholder": "Paste the Nostr ID or link of the article",
-    "verify_button": "Check Am",
-    "verified": "E verified — e dey for Bitcoin Block #{block}",
-    "pending": "Timestamp still dey process — come back after one hour",
-    "unverified": "We no fit verify dis article"
+    "title": "Fresh Gist",
+    "empty": "No gist yet. Make you drop the first one.",
+    "error": "We no fit load gist. Your network dey work?"
   }
 }
