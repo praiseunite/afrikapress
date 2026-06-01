@@ -40,6 +40,7 @@ export async function publishArticle({
   event.tags = [
     ["title", title.trim()],
     ["client", "afrikapress"],
+    ["t", "afrikapress"],
   ]
 
   if (sealOnBitcoin) {

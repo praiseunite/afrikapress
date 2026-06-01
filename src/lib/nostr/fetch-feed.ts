@@ -19,7 +19,7 @@ export async function fetchLatestArticles(
   const ndk = getNdk()
   const filter: NDKFilter = {
     kinds: [30023],
-    "#client": ["afrikapress"],
+    "#t": ["afrikapress"],
     limit,
   }
 
