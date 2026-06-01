@@ -65,12 +65,20 @@ export function Navbar() {
           </button>
           
           {isLoggedIn ? (
-            <button
-              onClick={handleLogout}
-              className="rounded-full border border-red-500/30 bg-red-500/10 px-4 py-1.5 text-sm font-semibold text-red-400 transition-colors hover:bg-red-500/20"
-            >
-              Logout
-            </button>
+            <div className="flex items-center gap-2">
+              <Link
+                href="/profile"
+                className="rounded-full bg-zinc-800 px-4 py-1.5 text-sm font-semibold text-zinc-300 transition-colors hover:bg-zinc-700"
+              >
+                Profile
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="rounded-full border border-red-500/30 bg-red-500/10 px-4 py-1.5 text-sm font-semibold text-red-400 transition-colors hover:bg-red-500/20"
+              >
+                Logout
+              </button>
+            </div>
           ) : (
             <Link
               href="/auth/login"

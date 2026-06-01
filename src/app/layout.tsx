@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css"
 import { LocaleProvider } from "@/components/shared/LocaleProvider"
 import { Navbar } from "@/components/shared/Navbar";
+import { ServiceWorkerCleaner } from "@/components/shared/ServiceWorkerCleaner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -41,6 +42,7 @@ export default function RootLayout({
     >
       <body className="bg-black text-white antialiased">
         <LocaleProvider>
+          <ServiceWorkerCleaner />
           <Navbar />
           <main>{children}</main>
         </LocaleProvider>
