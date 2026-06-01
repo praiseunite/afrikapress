@@ -49,9 +49,15 @@ export async function publishArticle({
   }
 
   try {
-    await event.publish()
+    const publishPromise = event.publish()
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error("publish_timeout")), 5000)
+    )
+    
+    await Promise.race([publishPromise, timeoutPromise])
     return ok(event.id)
-  } catch {
+  } catch (err) {
+    console.error("Publish failed or timed out:", err)
     return err("relay_unreachable")
   }
 }
