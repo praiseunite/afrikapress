@@ -22,7 +22,11 @@ export function getNdk(): NDK {
  * Safe to call multiple times — NDK handles de-duplication.
  */
 export async function connectToRelays(): Promise<void> {
-  await getNdk().connect()
+  try {
+    await getNdk().connect(3000)
+  } catch (err) {
+    console.warn("Some relays failed to connect:", err)
+  }
 }
 
 export function getRelaySet(): NDKRelaySet {
