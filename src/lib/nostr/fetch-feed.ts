@@ -38,9 +38,9 @@ export async function fetchLatestArticles(
     // If it timed out but NDK still captured some events in its internal cache, 
     // we could try to read them, but returning an empty set is safest for the race condition.
     // Actually, NDKEvent sets are better handled by just taking what we get.
-    const articles: ArticleEvent[] = Array.from(events).map((e) => {
-      const titleTag = e.tags.find((t) => t[0] === "title")
-      const otsTag = e.tags.find((t) => t[0] === "ots")
+    const articles: ArticleEvent[] = Array.from(events).map((e: any) => {
+      const titleTag = e.tags.find((t: string[]) => t[0] === "title")
+      const otsTag = e.tags.find((t: string[]) => t[0] === "ots")
       
       return {
         id: e.id,

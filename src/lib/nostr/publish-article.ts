@@ -2,7 +2,6 @@ import { NDKEvent, NDKPrivateKeySigner } from "@nostr-dev-kit/ndk"
 import { getNdk, connectToRelays } from "./relay-pool"
 import { sealContent } from "@/lib/openseal/stamp"
 import { err, ok, type Result } from "@/lib/types/result"
-import { hexToBytes } from "@noble/hashes/utils.js"
 
 type PublishOptions = {
   title: string
@@ -57,8 +56,8 @@ export async function publishArticle({
     
     await Promise.race([publishPromise, timeoutPromise])
     return ok(event.id)
-  } catch (err) {
-    console.error("Publish failed or timed out:", err)
+  } catch (e) {
+    console.error("Publish failed or timed out:", e)
     return err("relay_unreachable")
   }
 }
