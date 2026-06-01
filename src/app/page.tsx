@@ -12,107 +12,96 @@ const BACKGROUNDS = [
 
 export default function LandingPage() {
   const { t } = useLocale()
-  const [currentBg, setCurrentBg] = useState(0)
+  const [currentImage, setCurrentImage] = useState(0)
 
   // Carousel timer
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentBg((prev) => (prev + 1) % BACKGROUNDS.length)
+      setCurrentImage((prev) => (prev + 1) % BACKGROUNDS.length)
     }, 5000)
     return () => clearInterval(interval)
   }, [])
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-black text-white">
-      {/* Background Carousel */}
-      {BACKGROUNDS.map((bg, index) => (
-        <div
-          key={bg}
-          className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
-            index === currentBg ? "opacity-40" : "opacity-0"
-          }`}
-          style={{
-            backgroundImage: `url('${bg}')`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-          }}
-        />
-      ))}
-
-      {/* Dark overlay to ensure text readability */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/50 to-black/90" />
-
-      {/* Dynamic Background Gradients (Accent) */}
-      <div className="absolute top-[-20%] left-[-10%] h-[500px] w-[500px] rounded-full bg-emerald-600/20 blur-[120px] filter" />
-      <div className="absolute bottom-[-20%] right-[-10%] h-[500px] w-[500px] rounded-full bg-blue-600/10 blur-[120px] filter" />
-
-      <main className="relative mx-auto flex max-w-5xl flex-col items-center justify-center px-6 pt-32 text-center sm:pt-48">
-        <div className="animate-fade-in-up">
-          <span className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/20 px-4 py-1.5 text-sm font-medium text-emerald-400 backdrop-blur-md">
+    <div className="flex min-h-[calc(100vh-64px)] flex-col bg-black text-white lg:flex-row">
+      
+      {/* LEFT SIDE: Copy & Call to Actions */}
+      <main className="flex w-full flex-col justify-center px-8 py-16 lg:w-1/2 lg:px-16 xl:px-24">
+        
+        <div className="animate-fade-in-up mb-6">
+          <span className="inline-flex items-center gap-2 rounded-full border border-emerald-600/20 bg-emerald-50 px-4 py-1.5 text-sm font-semibold text-emerald-700">
             <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-75"></span>
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-600"></span>
             </span>
-            Live on Bitcoin & Nostr
+            Free & Unstoppable Voice
           </span>
         </div>
 
-        <h1 className="animate-fade-in-up mt-8 max-w-4xl text-5xl font-extrabold tracking-tight text-white sm:text-7xl drop-shadow-lg" style={{ animationDelay: "100ms" }}>
-          Uncensorable Journalism for Africa.
+        <h1 className="animate-fade-in-up text-5xl font-extrabold leading-tight tracking-tight text-white sm:text-6xl lg:text-7xl" style={{ animationDelay: "100ms" }}>
+          Speak Your Truth.<br />
+          <span className="text-emerald-500">Nobody Can Stop You.</span>
         </h1>
 
-        <p className="animate-fade-in-up mt-8 max-w-2xl text-lg text-zinc-300 sm:text-xl drop-shadow-md" style={{ animationDelay: "200ms" }}>
-          Publish your stories directly to the Nostr protocol. 
-          Seal your evidence into the Bitcoin blockchain forever. 
-          No servers. No bans. No takedowns.
+        <p className="animate-fade-in-up mt-6 max-w-lg text-lg text-zinc-400 sm:text-xl leading-relaxed" style={{ animationDelay: "200ms" }}>
+          Write your stories and share them directly with the world. 
+          We protect your words so that no government, corporation, or hacker can ever delete them. 
+          No bans. No takedowns. Just truth.
         </p>
 
         <div className="animate-fade-in-up mt-10 flex flex-col gap-4 sm:flex-row" style={{ animationDelay: "300ms" }}>
           <Link
             href="/auth/create"
-            className="group relative inline-flex items-center justify-center overflow-hidden rounded-full bg-emerald-500 px-8 py-4 font-semibold text-black shadow-lg transition-transform hover:scale-105 active:scale-95"
+            className="inline-flex items-center justify-center rounded-xl bg-emerald-500 px-8 py-4 font-bold text-black shadow-lg transition-transform hover:scale-105 hover:bg-emerald-400 active:scale-95"
           >
-            <span className="absolute inset-0 h-full w-full bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] transition-transform duration-500 group-hover:translate-x-[100%]" />
-            Start Publishing Now
+            Start Writing Now
           </Link>
           <Link
             href="/feed"
-            className="inline-flex items-center justify-center rounded-full border border-white/20 bg-black/40 px-8 py-4 font-semibold text-white shadow-lg backdrop-blur-md transition-colors hover:bg-black/60"
+            className="inline-flex items-center justify-center rounded-xl bg-zinc-900 px-8 py-4 font-bold text-white transition-colors hover:bg-zinc-800"
           >
-            Read the Feed
+            Read the News
           </Link>
         </div>
 
-        {/* Feature Cards / Glassmorphism */}
-        <div className="animate-fade-in-up mt-24 grid w-full grid-cols-1 gap-6 pb-24 sm:grid-cols-3" style={{ animationDelay: "400ms" }}>
-          <FeatureCard
-            icon="🔏"
-            title="OpenSeal Technology"
-            desc="Every article can be anchored into the Bitcoin blockchain, proving mathematically it existed before a specific block."
-          />
-          <FeatureCard
-            icon="🧠"
-            title="Brain Wallet"
-            desc="No passwords or seed phrases required. Login securely using 4 personal questions only you know the answers to."
-          />
-          <FeatureCard
-            icon="🌍"
-            title="Decentralized Storage"
-            desc="Articles live on public Nostr relays. There is no central server to hack, pressure, or shut down."
-          />
+        {/* Features / Social Proof area */}
+        <div className="animate-fade-in-up mt-16 grid grid-cols-1 gap-8 border-t border-zinc-800 pt-12 sm:grid-cols-2" style={{ animationDelay: "400ms" }}>
+          <div>
+            <div className="mb-2 text-2xl">🔏</div>
+            <h3 className="mb-1 font-bold text-white">Iron-Clad Proof</h3>
+            <p className="text-sm text-zinc-400">Every article is permanently stamped, proving exactly when you wrote it.</p>
+          </div>
+          <div>
+            <div className="mb-2 text-2xl">🧠</div>
+            <h3 className="mb-1 font-bold text-white">Simple, Safe Login</h3>
+            <p className="text-sm text-zinc-400">No passwords. Just answer 4 personal questions only you know.</p>
+          </div>
+          <div className="sm:col-span-2">
+            <div className="mb-2 text-2xl">🌍</div>
+            <h3 className="mb-1 font-bold text-white">Cannot Be Banned</h3>
+            <p className="text-sm text-zinc-400">Your articles live everywhere at once. There is no central server for anyone to shut down.</p>
+          </div>
         </div>
       </main>
-    </div>
-  )
-}
 
-function FeatureCard({ icon, title, desc }: { icon: string; title: string; desc: string }) {
-  return (
-    <div className="group relative overflow-hidden rounded-2xl border border-white/10 bg-black/40 p-8 text-left shadow-2xl backdrop-blur-xl transition-all hover:border-emerald-500/50 hover:bg-black/60">
-      <div className="absolute -right-4 -top-4 h-24 w-24 rounded-full bg-emerald-500/20 blur-2xl transition-opacity group-hover:bg-emerald-500/40" />
-      <div className="mb-4 text-3xl">{icon}</div>
-      <h3 className="mb-2 text-lg font-bold text-white drop-shadow">{title}</h3>
-      <p className="text-sm text-zinc-300 leading-relaxed drop-shadow-sm">{desc}</p>
+      {/* RIGHT SIDE: Image Carousel */}
+      <aside className="relative hidden w-full overflow-hidden bg-zinc-900 lg:block lg:w-1/2">
+        {BACKGROUNDS.map((bg, index) => (
+          <div
+            key={bg}
+            className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+              index === currentImage ? "opacity-100" : "opacity-0"
+            }`}
+            style={{
+              backgroundImage: `url('${bg}')`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+            }}
+          />
+        ))}
+        {/* Soft inner shadow/gradient for depth */}
+        <div className="absolute inset-0 bg-gradient-to-l from-transparent via-transparent to-black/20" />
+      </aside>
     </div>
   )
 }
