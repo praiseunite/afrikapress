@@ -92,7 +92,7 @@ export function CreateAccountForm({ onComplete }: Props) {
   if (step === 2) return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-2xl font-bold text-white">Your 12 Backup Words</h1>
+        <h1 className="text-2xl font-bold text-white">Your 24 Backup Words</h1>
         <p className="mt-1 text-sm text-zinc-400">
           Write these down or download the PDF. These words restore your account if you forget your answers.
         </p>
@@ -118,7 +118,7 @@ export function CreateAccountForm({ onComplete }: Props) {
           onChange={(e) => setConfirmed(e.target.checked)}
           className="h-4 w-4 rounded border-zinc-700 bg-zinc-900 accent-emerald-500"
         />
-        I have saved my 12 words
+        I have saved my 24 words
       </label>
 
       {errMsg && <p className="text-sm text-red-400" role="alert">{errMsg}</p>}

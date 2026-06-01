@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { loadSession } from "@/lib/auth/session"
 import { nip19, getPublicKey } from "nostr-tools"
 import { deriveKeyFromAnswers, keyToHex } from "@/lib/auth/derive-key"
+import { keyToSeedWords } from "@/lib/auth/seed-phrase"
 import { useRouter } from "next/navigation"
 import { useLocale } from "@/components/shared/LocaleProvider"
 
@@ -15,6 +16,7 @@ export default function ProfilePage() {
   const [privkeyHex, setPrivkeyHex] = useState<string>("")
   const [npub, setNpub] = useState<string>("")
   const [nsec, setNsec] = useState<string>("")
+  const [seedWords, setSeedWords] = useState<string[]>([])
   
   const [isRevealed, setIsRevealed] = useState(false)
   const [error, setError] = useState("")
@@ -39,6 +41,10 @@ export default function ProfilePage() {
       setPubkeyHex(pub)
       setNpub(nip19.npubEncode(pub))
       setNsec(nip19.nsecEncode(new Uint8Array(Buffer.from(key, "hex"))))
+      const seedResult = keyToSeedWords(new Uint8Array(Buffer.from(key, "hex")))
+      if (seedResult.ok) {
+        setSeedWords(seedResult.value)
+      }
     } catch (err) {
       console.error(err)
     }
@@ -96,8 +102,27 @@ export default function ProfilePage() {
         </p>
 
         {isRevealed ? (
-          <div className="rounded border border-red-500/30 bg-red-500/10 p-3 font-mono text-sm text-red-400 break-all">
-            {nsec}
+          <div className="space-y-6">
+            <div>
+              <p className="mb-2 text-sm font-semibold text-zinc-400">Nostr Private Key (nsec)</p>
+              <div className="rounded border border-red-500/30 bg-red-500/10 p-3 font-mono text-sm text-red-400 break-all">
+                {nsec}
+              </div>
+            </div>
+            
+            {seedWords.length > 0 && (
+              <div>
+                <p className="mb-2 text-sm font-semibold text-zinc-400">24-Word Recovery Seed Phrase</p>
+                <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-6">
+                  {seedWords.map((word, index) => (
+                    <div key={index} className="flex items-center gap-2 rounded border border-zinc-700 bg-zinc-800 p-2 text-sm">
+                      <span className="text-xs text-zinc-500">{index + 1}.</span>
+                      <span className="font-mono text-emerald-400">{word}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         ) : (
           <form onSubmit={handleReveal} className="mt-6 flex flex-col gap-4">
@@ -106,29 +131,29 @@ export default function ProfilePage() {
             </p>
             
             <input
-              type="password"
-              placeholder="1. Mother's maiden name?"
+              type="text"
+              placeholder="1. Your email address"
               value={q1}
               onChange={(e) => setQ1(e.target.value)}
               className="w-full rounded border border-zinc-700 bg-zinc-800 p-3 text-white focus:border-emerald-500 focus:outline-none"
             />
             <input
-              type="password"
-              placeholder="2. City you were born in?"
+              type="text"
+              placeholder="2. Your mother's first name"
               value={q2}
               onChange={(e) => setQ2(e.target.value)}
               className="w-full rounded border border-zinc-700 bg-zinc-800 p-3 text-white focus:border-emerald-500 focus:outline-none"
             />
             <input
-              type="password"
-              placeholder="3. Name of your first pet?"
+              type="text"
+              placeholder="3. A year you will never forget"
               value={q3}
               onChange={(e) => setQ3(e.target.value)}
               className="w-full rounded border border-zinc-700 bg-zinc-800 p-3 text-white focus:border-emerald-500 focus:outline-none"
             />
             <input
               type="password"
-              placeholder="4. Favorite childhood hero?"
+              placeholder="4. A secret word only you know"
               value={q4}
               onChange={(e) => setQ4(e.target.value)}
               className="w-full rounded border border-zinc-700 bg-zinc-800 p-3 text-white focus:border-emerald-500 focus:outline-none"
