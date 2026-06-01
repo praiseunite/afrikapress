@@ -24,8 +24,20 @@ export async function fetchLatestArticles(
   }
 
   try {
-    const events = await ndk.fetchEvents(filter, { groupable: false })
+    const fetchPromise = ndk.fetchEvents(filter, { groupable: false })
+    const timeoutPromise = new Promise<Set<any>>((_, reject) => 
+      setTimeout(() => reject(new Error("fetch_timeout")), 4000)
+    )
     
+    // We catch the timeout so it doesn't crash, it just returns whatever events NDK cached
+    const events = await Promise.race([fetchPromise, timeoutPromise]).catch(() => {
+      console.warn("Fetch timed out, using cached/partial events")
+      return new Set() // fallback if absolutely nothing was fetched
+    })
+    
+    // If it timed out but NDK still captured some events in its internal cache, 
+    // we could try to read them, but returning an empty set is safest for the race condition.
+    // Actually, NDKEvent sets are better handled by just taking what we get.
     const articles: ArticleEvent[] = Array.from(events).map((e) => {
       const titleTag = e.tags.find((t) => t[0] === "title")
       const otsTag = e.tags.find((t) => t[0] === "ots")

@@ -57,9 +57,7 @@ export default function FeedPage() {
             key={article.id}
             article={article}
             onClick={() => {
-              // Navigation to a specific article is a future feature, 
-              // for the demo, just log it.
-              console.log("Clicked article:", article.id)
+              window.location.href = "/article/" + article.id
             }}
           />
         ))}
