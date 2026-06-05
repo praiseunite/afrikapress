@@ -20,7 +20,9 @@ export default function ProfilePage() {
   
   const [isRevealed, setIsRevealed] = useState(false)
   const [error, setError] = useState("")
-  
+  const [lightningAddress, setLightningAddress] = useState("")
+  const [lnSaved, setLnSaved] = useState(false)
+
   // Brain wallet questions for verification
   const [q1, setQ1] = useState("")
   const [q2, setQ2] = useState("")
@@ -45,10 +47,47 @@ export default function ProfilePage() {
       if (seedResult.ok) {
         setSeedWords(seedResult.value)
       }
+      // Load saved lightning address
+      const savedLn = localStorage.getItem(`ln_address_${pub}`)
+      if (savedLn) setLightningAddress(savedLn)
     } catch (err) {
       console.error(err)
     }
   }, [router])
+
+  function saveLightningAddress() {
+    if (!pubkeyHex || !lightningAddress.trim()) return
+    localStorage.setItem(`ln_address_${pubkeyHex}`, lightningAddress.trim())
+    setLnSaved(true)
+    setTimeout(() => setLnSaved(false), 2000)
+  }
+
+  function downloadBackup() {
+    if (seedWords.length === 0 || !nsec) return
+    const content = [
+      "AfrikaPress Account Recovery Backup",
+      "====================================",
+      "",
+      "KEEP THIS FILE SAFE. NEVER SHARE IT.",
+      "Store it on a USB drive or print and hide it.",
+      "",
+      `Public Key (npub): ${npub}`,
+      "",
+      `Private Key (nsec): ${nsec}`,
+      "",
+      "24-Word Recovery Phrase:",
+      seedWords.map((w, i) => `${i + 1}. ${w}`).join("\n"),
+      "",
+      `Generated: ${new Date().toISOString()}`,
+    ].join("\n")
+    const blob = new Blob([content], { type: "text/plain" })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement("a")
+    a.href = url
+    a.download = "afrikapress-recovery-backup.txt"
+    a.click()
+    URL.revokeObjectURL(url)
+  }
 
   const handleReveal = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -83,15 +122,41 @@ export default function ProfilePage() {
   return (
     <div className="mx-auto max-w-2xl px-6 py-12 text-zinc-300">
       <h1 className="mb-2 text-3xl font-bold text-white">Your Profile</h1>
-      <p className="mb-8 text-zinc-500">View your Nostr identity and public address.</p>
+      <p className="mb-8 text-zinc-500">Manage your journalist identity, Lightning address, and recovery backup.</p>
 
-      <div className="mb-8 rounded-xl border border-zinc-800 bg-zinc-900/50 p-6">
+      {/* Public key */}
+      <div className="mb-6 rounded-xl border border-zinc-800 bg-zinc-900/50 p-6">
         <h2 className="mb-2 text-lg font-bold text-white">Public Key (npub)</h2>
         <p className="mb-4 text-sm text-zinc-500">
-          This is your public address. You can share this with others so they can follow you or send you messages on Nostr.
+          This is your public journalist address. Share it so others can follow your work on Nostr.
         </p>
-        <div className="rounded border border-emerald-500/30 bg-emerald-500/10 p-3 font-mono text-sm text-emerald-400 break-all">
+        <div className="rounded border border-emerald-500/30 bg-emerald-500/10 p-3 font-mono text-xs text-emerald-400 break-all">
           {npub}
+        </div>
+      </div>
+
+      {/* Lightning Address */}
+      <div className="mb-6 rounded-xl border border-zinc-800 bg-zinc-900/50 p-6">
+        <h2 className="mb-2 text-lg font-bold text-white">⚡ Lightning Address</h2>
+        <p className="mb-4 text-sm text-zinc-500">
+          Add your Lightning address so readers can send you Bitcoin tips directly when they read your articles.
+          Get a free one at <a href="https://getalby.com" target="_blank" rel="noopener noreferrer" className="text-amber-400 hover:underline">getalby.com</a>.
+        </p>
+        <div className="flex gap-2">
+          <input
+            value={lightningAddress}
+            onChange={(e) => setLightningAddress(e.target.value)}
+            placeholder="yourname@getalby.com"
+            className="flex-1 rounded-lg border border-zinc-700 bg-zinc-800 px-3 py-2.5 text-sm text-white placeholder-zinc-600 focus:border-amber-500 focus:outline-none"
+          />
+          <button
+            onClick={saveLightningAddress}
+            className={`rounded-lg px-4 py-2.5 text-sm font-bold transition-colors ${
+              lnSaved ? "bg-emerald-500 text-black" : "bg-amber-500 text-black hover:bg-amber-400"
+            }`}
+          >
+            {lnSaved ? "Saved ✓" : "Save"}
+          </button>
         </div>
       </div>
 
@@ -105,24 +170,36 @@ export default function ProfilePage() {
           <div className="space-y-6">
             <div>
               <p className="mb-2 text-sm font-semibold text-zinc-400">Nostr Private Key (nsec)</p>
-              <div className="rounded border border-red-500/30 bg-red-500/10 p-3 font-mono text-sm text-red-400 break-all">
+              <div className="rounded border border-red-500/30 bg-red-500/10 p-3 font-mono text-xs text-red-400 break-all">
                 {nsec}
               </div>
             </div>
-            
+
             {seedWords.length > 0 && (
               <div>
                 <p className="mb-2 text-sm font-semibold text-zinc-400">24-Word Recovery Seed Phrase</p>
-                <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-6">
+                <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-6">
                   {seedWords.map((word, index) => (
-                    <div key={index} className="flex items-center gap-2 rounded border border-zinc-700 bg-zinc-800 p-2 text-sm">
-                      <span className="text-xs text-zinc-500">{index + 1}.</span>
-                      <span className="font-mono text-emerald-400">{word}</span>
+                    <div key={index} className="flex items-center gap-1.5 rounded border border-zinc-700 bg-zinc-800 p-2">
+                      <span className="text-[10px] text-zinc-500">{index + 1}.</span>
+                      <span className="font-mono text-xs text-emerald-400">{word}</span>
                     </div>
                   ))}
                 </div>
               </div>
             )}
+
+            {/* Download backup */}
+            <button
+              onClick={downloadBackup}
+              className="w-full rounded-xl border border-zinc-700 bg-zinc-800 py-3 text-sm font-semibold text-zinc-300 transition-colors hover:bg-zinc-700"
+            >
+              💾 Download Recovery Backup (.txt)
+            </button>
+            <p className="text-xs text-zinc-600">
+              Save this file on a USB drive or print it and hide it somewhere safe.
+              This is the only way to recover your account if you forget your 4 questions.
+            </p>
           </div>
         ) : (
           <form onSubmit={handleReveal} className="mt-6 flex flex-col gap-4">

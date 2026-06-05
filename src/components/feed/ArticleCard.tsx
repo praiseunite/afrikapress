@@ -1,5 +1,9 @@
+"use client"
+
 import type { ArticleEvent } from "@/lib/types/nostr"
 import { OpenSealBadge } from "@/components/shared/OpenSealBadge"
+import { ZapButton } from "@/components/zap/ZapButton"
+import { useEffect, useState } from "react"
 
 type Props = { article: ArticleEvent; onClick: () => void }
 
@@ -15,6 +19,13 @@ const shortPubkey = (pk: string): string => `${pk.slice(0, 8)}…${pk.slice(-4)}
 
 export function ArticleCard({ article, onClick }: Props) {
   const sealVariant = article.isSealed ? "sealed" : "unsealed"
+  const [lightningAddress, setLightningAddress] = useState<string | undefined>()
+
+  useEffect(() => {
+    // Read the author's saved lightning address from localStorage
+    const saved = localStorage.getItem(`ln_address_${article.pubkey}`)
+    if (saved) setLightningAddress(saved)
+  }, [article.pubkey])
 
   return (
     <article
@@ -35,7 +46,15 @@ export function ArticleCard({ article, onClick }: Props) {
 
       <div className="flex items-center justify-between text-xs text-zinc-500">
         <span>@{shortPubkey(article.pubkey)}</span>
-        <span>{timeAgo(article.created_at)}</span>
+        <div className="flex items-center gap-2">
+          <span>{timeAgo(article.created_at)}</span>
+          {lightningAddress && (
+            <ZapButton
+              lightningAddress={lightningAddress}
+              authorPubkey={article.pubkey}
+            />
+          )}
+        </div>
       </div>
     </article>
   )
