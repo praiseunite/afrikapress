@@ -20,6 +20,7 @@ export function Navbar() {
   const links = [
     { href: "/feed", label: t.nav.feed },
     { href: "/write", label: t.nav.write },
+    { href: "/elections", label: "Elections" },
     { href: "/verify", label: t.nav.verify },
   ]
 
