@@ -23,8 +23,20 @@ export function ArticleCard({ article, onClick }: Props) {
   const [lightningAddress, setLightningAddress] = useState<string | undefined>()
 
   useEffect(() => {
-    const saved = localStorage.getItem(`ln_address_${article.pubkey}`)
-    if (saved) setLightningAddress(saved)
+    // First: show instantly from localStorage cache (no delay)
+    const cached = localStorage.getItem(`ln_address_${article.pubkey}`)
+    if (cached) setLightningAddress(cached)
+
+    // Then: fetch from Nostr Kind 0 to get the real published value
+    import("@/lib/nostr/social").then(({ fetchJournalistProfile }) => {
+      fetchJournalistProfile(article.pubkey).then((profile) => {
+        if (profile.lightningAddress) {
+          setLightningAddress(profile.lightningAddress)
+          // Cache it locally for next visit
+          localStorage.setItem(`ln_address_${article.pubkey}`, profile.lightningAddress)
+        }
+      })
+    })
   }, [article.pubkey])
 
   return (
