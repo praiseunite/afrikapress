@@ -1,12 +1,12 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { Suspense, useEffect, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import { verifyTimestamp } from "@/lib/openseal/verify"
 
 type VerifyState = "idle" | "loading" | "verified" | "pending" | "error"
 
-export default function VerifyPage() {
+function VerifyContent() {
   const searchParams = useSearchParams()
   const [ticket, setTicket] = useState("")
   const [state, setState] = useState<VerifyState>("idle")
@@ -170,5 +170,19 @@ export default function VerifyPage() {
         </ol>
       </div>
     </div>
+  )
+}
+
+export default function VerifyPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-[60vh] items-center justify-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-zinc-800 border-t-emerald-500" />
+        </div>
+      }
+    >
+      <VerifyContent />
+    </Suspense>
   )
 }
