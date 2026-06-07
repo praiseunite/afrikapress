@@ -2,14 +2,15 @@
 
 import type { ArticleEvent } from "@/lib/types/nostr"
 import { OpenSealBadge } from "@/components/shared/OpenSealBadge"
-import { ZapButton } from "@/components/zap/ZapButton"
+import { SocialBar } from "@/components/feed/SocialBar"
 import { useEffect, useState } from "react"
+import Link from "next/link"
 
 type Props = { article: ArticleEvent; onClick: () => void }
 
 const timeAgo = (unix: number): string => {
   const seconds = Math.floor(Date.now() / 1000) - unix
-  if (seconds < 60)  return `${seconds}s ago`
+  if (seconds < 60) return `${seconds}s ago`
   if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`
   if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`
   return `${Math.floor(seconds / 86400)}d ago`
@@ -22,7 +23,6 @@ export function ArticleCard({ article, onClick }: Props) {
   const [lightningAddress, setLightningAddress] = useState<string | undefined>()
 
   useEffect(() => {
-    // Read the author's saved lightning address from localStorage
     const saved = localStorage.getItem(`ln_address_${article.pubkey}`)
     if (saved) setLightningAddress(saved)
   }, [article.pubkey])
@@ -30,32 +30,41 @@ export function ArticleCard({ article, onClick }: Props) {
   return (
     <article
       data-testid="article-card"
-      onClick={onClick}
-      className="cursor-pointer rounded-xl border border-zinc-800 bg-zinc-900 p-4 transition-colors hover:border-zinc-700 hover:bg-zinc-800/70"
+      className="rounded-xl border border-zinc-800 bg-zinc-900 p-4 transition-colors hover:border-zinc-700 hover:bg-zinc-800/70"
     >
-      <div className="mb-2 flex items-start justify-between gap-2">
-        <h2 className="text-base font-semibold leading-snug text-white line-clamp-2">
-          {article.title}
-        </h2>
-        <OpenSealBadge variant={sealVariant} />
-      </div>
-
-      <p className="mb-3 text-sm text-zinc-400 line-clamp-2">
-        {article.content.replace(/[#*`]/g, "").slice(0, 140)}
-      </p>
-
-      <div className="flex items-center justify-between text-xs text-zinc-500">
-        <span>@{shortPubkey(article.pubkey)}</span>
-        <div className="flex items-center gap-2">
-          <span>{timeAgo(article.created_at)}</span>
-          {lightningAddress && (
-            <ZapButton
-              lightningAddress={lightningAddress}
-              authorPubkey={article.pubkey}
-            />
-          )}
+      {/* Clickable area — title + excerpt */}
+      <div className="cursor-pointer" onClick={onClick}>
+        <div className="mb-2 flex items-start justify-between gap-2">
+          <h2 className="text-base font-semibold leading-snug text-white line-clamp-2">
+            {article.title}
+          </h2>
+          <OpenSealBadge variant={sealVariant} />
         </div>
+
+        <p className="mb-3 text-sm text-zinc-400 line-clamp-2">
+          {article.content.replace(/[#*`]/g, "").slice(0, 140)}
+        </p>
       </div>
+
+      {/* Author row */}
+      <div className="mb-1 flex items-center justify-between text-xs text-zinc-500">
+        <Link
+          href={`/profile/${article.pubkey}`}
+          onClick={(e) => e.stopPropagation()}
+          className="font-mono hover:text-emerald-400 transition-colors"
+        >
+          @{shortPubkey(article.pubkey)}
+        </Link>
+        <span>{timeAgo(article.created_at)}</span>
+      </div>
+
+      {/* Social actions */}
+      <SocialBar
+        articleId={article.id}
+        authorPubkey={article.pubkey}
+        articleContent={article.content}
+        lightningAddress={lightningAddress}
+      />
     </article>
   )
 }
