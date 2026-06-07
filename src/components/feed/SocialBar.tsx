@@ -27,7 +27,9 @@ export function SocialBar({ articleId, authorPubkey, articleContent, lightningAd
   // Witness (react)
   const [witnessCount, setWitnessCount] = useState(0)
   const [hasWitnessed, setHasWitnessed] = useState(false)
+  const [witnessEventId, setWitnessEventId] = useState<string | null>(null)
   const [isWitnessing, setIsWitnessing] = useState(false)
+  const [isUnwitnessing, setIsUnwitnessing] = useState(false)
 
   // Amplify (repost)
   const [amplified, setAmplified] = useState(false)
@@ -64,20 +66,44 @@ export function SocialBar({ articleId, authorPubkey, articleContent, lightningAd
     // Restore local state
     const witnessed = localStorage.getItem(`witnessed_${articleId}`) === "1"
     const amplifiedSaved = localStorage.getItem(`amplified_${articleId}`) === "1"
+    const savedWitnessEventId = localStorage.getItem(`witness_event_${articleId}`)
     setHasWitnessed(witnessed)
     setAmplified(amplifiedSaved)
+    if (savedWitnessEventId) setWitnessEventId(savedWitnessEventId)
   }, [articleId])
 
   async function handleWitness(e: React.MouseEvent) {
     e.stopPropagation()
     if (!keyHex) { router.push("/auth/login"); return }
-    if (isOwnArticle || hasWitnessed || isWitnessing) return
+    if (isOwnArticle || isWitnessing) return
+
+    // If already witnessed — un-witness via Kind 5 deletion
+    if (hasWitnessed && witnessEventId) {
+      setIsUnwitnessing(true)
+      const { deleteEvent } = await import("@/lib/nostr/social")
+      const res = await deleteEvent(witnessEventId, keyHex)
+      if (res.ok) {
+        setHasWitnessed(false)
+        setWitnessEventId(null)
+        setWitnessCount((n) => Math.max(0, n - 1))
+        localStorage.removeItem(`witnessed_${articleId}`)
+        localStorage.removeItem(`witness_event_${articleId}`)
+      }
+      setIsUnwitnessing(false)
+      return
+    }
+
+    if (hasWitnessed) return  // witnessed but no event id to delete
     setIsWitnessing(true)
     const res = await witnessArticle(articleId, authorPubkey, keyHex)
     if (res.ok) {
       setHasWitnessed(true)
       setWitnessCount((n) => n + 1)
       localStorage.setItem(`witnessed_${articleId}`, "1")
+      if (res.value) {
+        setWitnessEventId(res.value)
+        localStorage.setItem(`witness_event_${articleId}`, res.value)
+      }
     }
     setIsWitnessing(false)
   }
@@ -114,35 +140,39 @@ export function SocialBar({ articleId, authorPubkey, articleContent, lightningAd
   return (
     <div className="mt-3 flex items-center gap-1.5 border-t border-zinc-800/50 pt-3" onClick={(e) => e.stopPropagation()}>
 
-      {/* Witness — redirects to login if not logged in */}
+      {/* Witness / Un-witness */}
       <button
         onClick={handleWitness}
-        disabled={isOwnArticle || isWitnessing}
+        disabled={isOwnArticle || isWitnessing || isUnwitnessing}
         title={
-          !keyHex ? "Log in to Witness this story"
+          !keyHex ? "Log in to Witness"
           : isOwnArticle ? "Cannot Witness your own story"
-          : hasWitnessed ? "You have witnessed this"
+          : hasWitnessed ? "Click to un-witness"
           : "Witness this truth"
         }
         className={`inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold transition-all ${
           hasWitnessed
-            ? "bg-violet-500/20 text-violet-400 border border-violet-500/30"
+            ? "bg-violet-500/20 text-violet-400 border border-violet-500/30 hover:bg-red-500/10 hover:border-red-500/20 hover:text-red-400"
             : !keyHex
-            ? "border border-zinc-800 text-zinc-600 hover:border-violet-500/40 hover:text-violet-500 cursor-pointer"
+            ? "border border-zinc-800 text-zinc-600 hover:border-violet-500/40 hover:text-violet-500"
             : "border border-zinc-800 text-zinc-500 hover:border-violet-500/30 hover:bg-violet-500/10 hover:text-violet-400"
         } disabled:opacity-40 disabled:cursor-not-allowed`}
       >
         <span>👁️</span>
-        <span>{!keyHex ? "Witness" : "Witness"}</span>
+        <span>
+          {isWitnessing || isUnwitnessing ? "…"
+           : hasWitnessed ? "Witnessed ✓"
+           : "Witness"}
+        </span>
         {witnessCount > 0 && <span className="ml-0.5 text-[10px] opacity-70">{witnessCount}</span>}
       </button>
 
-      {/* Amplify — redirects to login if not logged in */}
+      {/* Amplify */}
       <button
         onClick={handleAmplify}
         disabled={isOwnArticle || isAmplifying}
         title={
-          !keyHex ? "Log in to Amplify this story"
+          !keyHex ? "Log in to Amplify"
           : isOwnArticle ? "Cannot Amplify your own story"
           : amplified ? "Already amplified"
           : "Amplify this story"
@@ -151,40 +181,33 @@ export function SocialBar({ articleId, authorPubkey, articleContent, lightningAd
           amplified
             ? "bg-sky-500/20 text-sky-400 border border-sky-500/30"
             : !keyHex
-            ? "border border-zinc-800 text-zinc-600 hover:border-sky-500/40 hover:text-sky-500 cursor-pointer"
+            ? "border border-zinc-800 text-zinc-600 hover:border-sky-500/40 hover:text-sky-500"
             : "border border-zinc-800 text-zinc-500 hover:border-sky-500/30 hover:bg-sky-500/10 hover:text-sky-400"
         } disabled:opacity-40 disabled:cursor-not-allowed`}
       >
         <span>🔊</span>
-        <span>{isAmplifying ? "Amplifying…" : amplified ? "Amplified" : "Amplify"}</span>
+        <span>{isAmplifying ? "…" : amplified ? "Amplified ✓" : "Amplify"}</span>
       </button>
 
-      {/* Watch — full toggle, redirects to login if not logged in */}
+      {/* Watch / Unwatch — clear toggle */}
       <button
         onClick={handleWatch}
         disabled={isTogglingWatch}
         title={
-          !keyHex ? "Log in to Watch this story"
+          !keyHex ? "Log in to Watch"
           : isWatching ? "Click to Unwatch"
           : "Watch this story"
         }
-        className={`group inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold transition-all ${
+        className={`inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold transition-all ${
           isWatching
-            ? "bg-amber-500/20 text-amber-400 border border-amber-500/30 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400"
+            ? "bg-amber-500/20 text-amber-400 border border-amber-500/30 hover:bg-red-500/10 hover:border-red-500/20 hover:text-red-400"
             : !keyHex
-            ? "border border-zinc-800 text-zinc-600 hover:border-amber-500/40 hover:text-amber-500 cursor-pointer"
+            ? "border border-zinc-800 text-zinc-600 hover:border-amber-500/40 hover:text-amber-500"
             : "border border-zinc-800 text-zinc-500 hover:border-amber-500/30 hover:bg-amber-500/10 hover:text-amber-400"
         } disabled:opacity-40 disabled:cursor-not-allowed`}
       >
-        <span>{isWatching ? "🔖" : "🔖"}</span>
-        <span>
-          {isTogglingWatch ? "…" : isWatching ? (
-            <>
-              <span className="group-hover:hidden">Watching</span>
-              <span className="hidden group-hover:inline">Unwatch</span>
-            </>
-          ) : "Watch"}
-        </span>
+        <span>🔖</span>
+        <span>{isTogglingWatch ? "…" : isWatching ? "Watching ✓" : "Watch"}</span>
       </button>
 
       {/* Protect (Lightning) — no login required, anyone can protect */}

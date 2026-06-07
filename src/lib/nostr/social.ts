@@ -300,3 +300,50 @@ export async function fetchTrackerCount(pubkey: string): Promise<number> {
     return 0
   }
 }
+
+// ─── PUBLISH PROFILE (Kind 0) ─────────────────────────────────────────────────
+
+export type ProfileData = {
+  name: string
+  about: string
+  picture: string
+  lud16?: string   // Lightning address
+  nip05?: string
+}
+
+/**
+ * Publishes the user's Nostr Kind 0 metadata profile.
+ * This makes the name/bio/picture visible to all Nostr clients.
+ */
+export async function publishProfile(
+  data: ProfileData,
+  keyHex: string
+): Promise<Result<string, "relay_unreachable">> {
+  const content = JSON.stringify({
+    name: data.name.trim(),
+    about: data.about.trim(),
+    picture: data.picture.trim(),
+    ...(data.lud16 ? { lud16: data.lud16.trim() } : {}),
+    ...(data.nip05 ? { nip05: data.nip05.trim() } : {}),
+  })
+  return publishEvent(0, content, [], keyHex)
+}
+
+// ─── DELETE EVENT (Kind 5) — for un-witnessing ────────────────────────────────
+
+/**
+ * Publishes a Kind 5 deletion request for a previously published event.
+ * Used to un-witness (delete your own reaction event).
+ */
+export async function deleteEvent(
+  eventId: string,
+  keyHex: string
+): Promise<Result<string, "relay_unreachable">> {
+  return publishEvent(
+    5,
+    "Deleted by author",
+    [["e", eventId]],
+    keyHex
+  )
+}
+
