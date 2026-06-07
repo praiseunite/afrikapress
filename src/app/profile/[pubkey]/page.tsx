@@ -14,6 +14,7 @@ import {
 } from "@/lib/nostr/social"
 import { fetchLatestArticles } from "@/lib/nostr/fetch-feed"
 import { ArticleCard } from "@/components/feed/ArticleCard"
+import { ZapButton } from "@/components/zap/ZapButton"
 import type { ArticleEvent } from "@/lib/types/nostr"
 
 export default function JournalistProfilePage() {
@@ -30,6 +31,7 @@ export default function JournalistProfilePage() {
   const [keyHex, setKeyHex] = useState<string | null>(null)
   const [userPubkey, setUserPubkey] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [zapOpen, setZapOpen] = useState(false)
 
   useEffect(() => {
     if (!pubkey) return
@@ -63,7 +65,8 @@ export default function JournalistProfilePage() {
   }, [pubkey])
 
   async function handleTrackToggle() {
-    if (!keyHex || isTogglingTrack) return
+    if (!keyHex) { router.push("/auth/login"); return }
+    if (isTogglingTrack) return
     setIsTogglingTrack(true)
     const next = !isTracking
     const res = await setTracking(pubkey, next, trackingList, keyHex)
@@ -150,27 +153,30 @@ export default function JournalistProfilePage() {
             <div className="mt-5 flex gap-3">
               <button
                 onClick={handleTrackToggle}
-                disabled={!keyHex || isTogglingTrack}
-                className={`flex-1 rounded-xl py-2.5 text-sm font-bold transition-all ${
+                disabled={isTogglingTrack}
+                className={`group flex-1 rounded-xl py-2.5 text-sm font-bold transition-all ${
                   isTracking
                     ? "border border-zinc-600 bg-zinc-800 text-zinc-300 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400"
+                    : !keyHex
+                    ? "border border-emerald-500/40 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20"
                     : "bg-emerald-500 text-black hover:bg-emerald-400"
                 } disabled:opacity-40`}
               >
-                {isTogglingTrack
-                  ? "…"
-                  : isTracking
-                  ? "📡 Tracking ✓"
-                  : "📡 Track"}
+                {isTogglingTrack ? "…" : isTracking ? (
+                  <>
+                    <span className="group-hover:hidden">📡 Tracking ✓</span>
+                    <span className="hidden group-hover:inline">✕ Untrack</span>
+                  </>
+                ) : "📡 Track"}
               </button>
 
               {profile?.lightningAddress && (
-                <a
-                  href={`/profile/${pubkey}`}
+                <button
+                  onClick={() => setZapOpen(true)}
                   className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-2.5 text-sm font-bold text-emerald-400 hover:bg-emerald-500/20 transition-colors"
                 >
                   🛡️ Protect
-                </a>
+                </button>
               )}
             </div>
           )}
@@ -210,6 +216,14 @@ export default function JournalistProfilePage() {
           )}
         </div>
       </div>
+
+      {/* Protect (Zap) modal */}
+      {zapOpen && profile?.lightningAddress && (
+        <ZapButton
+          lightningAddress={profile.lightningAddress}
+          authorPubkey={pubkey}
+        />
+      )}
     </div>
   )
 }

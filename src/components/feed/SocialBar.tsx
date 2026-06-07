@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation"
 import { loadSession } from "@/lib/auth/session"
 import { getPublicKey } from "nostr-tools"
 import {
@@ -19,6 +20,7 @@ type Props = {
 }
 
 export function SocialBar({ articleId, authorPubkey, articleContent, lightningAddress }: Props) {
+  const router = useRouter()
   const [keyHex, setKeyHex] = useState<string | null>(null)
   const [userPubkey, setUserPubkey] = useState<string | null>(null)
 
@@ -68,7 +70,8 @@ export function SocialBar({ articleId, authorPubkey, articleContent, lightningAd
 
   async function handleWitness(e: React.MouseEvent) {
     e.stopPropagation()
-    if (!keyHex || hasWitnessed || isWitnessing) return
+    if (!keyHex) { router.push("/auth/login"); return }
+    if (isOwnArticle || hasWitnessed || isWitnessing) return
     setIsWitnessing(true)
     const res = await witnessArticle(articleId, authorPubkey, keyHex)
     if (res.ok) {
@@ -81,7 +84,8 @@ export function SocialBar({ articleId, authorPubkey, articleContent, lightningAd
 
   async function handleAmplify(e: React.MouseEvent) {
     e.stopPropagation()
-    if (!keyHex || amplified || isAmplifying) return
+    if (!keyHex) { router.push("/auth/login"); return }
+    if (isOwnArticle || amplified || isAmplifying) return
     setIsAmplifying(true)
     const res = await amplifyArticle(articleId, authorPubkey, articleContent, keyHex)
     if (res.ok) {
@@ -93,7 +97,8 @@ export function SocialBar({ articleId, authorPubkey, articleContent, lightningAd
 
   async function handleWatch(e: React.MouseEvent) {
     e.stopPropagation()
-    if (!keyHex || isTogglingWatch) return
+    if (!keyHex) { router.push("/auth/login"); return }
+    if (isTogglingWatch) return
     setIsTogglingWatch(true)
     const next = !isWatching
     const res = await setWatching(articleId, next, watchList, keyHex)
@@ -108,30 +113,45 @@ export function SocialBar({ articleId, authorPubkey, articleContent, lightningAd
 
   return (
     <div className="mt-3 flex items-center gap-1.5 border-t border-zinc-800/50 pt-3" onClick={(e) => e.stopPropagation()}>
-      {/* Witness */}
+
+      {/* Witness — redirects to login if not logged in */}
       <button
         onClick={handleWitness}
-        disabled={!keyHex || isOwnArticle || isWitnessing}
-        title={!keyHex ? "Log in to Witness" : isOwnArticle ? "Cannot Witness your own story" : "Witness this truth"}
+        disabled={isOwnArticle || isWitnessing}
+        title={
+          !keyHex ? "Log in to Witness this story"
+          : isOwnArticle ? "Cannot Witness your own story"
+          : hasWitnessed ? "You have witnessed this"
+          : "Witness this truth"
+        }
         className={`inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold transition-all ${
           hasWitnessed
             ? "bg-violet-500/20 text-violet-400 border border-violet-500/30"
+            : !keyHex
+            ? "border border-zinc-800 text-zinc-600 hover:border-violet-500/40 hover:text-violet-500 cursor-pointer"
             : "border border-zinc-800 text-zinc-500 hover:border-violet-500/30 hover:bg-violet-500/10 hover:text-violet-400"
         } disabled:opacity-40 disabled:cursor-not-allowed`}
       >
         <span>👁️</span>
-        <span>Witness</span>
+        <span>{!keyHex ? "Witness" : "Witness"}</span>
         {witnessCount > 0 && <span className="ml-0.5 text-[10px] opacity-70">{witnessCount}</span>}
       </button>
 
-      {/* Amplify */}
+      {/* Amplify — redirects to login if not logged in */}
       <button
         onClick={handleAmplify}
-        disabled={!keyHex || isOwnArticle || isAmplifying}
-        title={!keyHex ? "Log in to Amplify" : isOwnArticle ? "Cannot Amplify your own story" : "Amplify this story"}
+        disabled={isOwnArticle || isAmplifying}
+        title={
+          !keyHex ? "Log in to Amplify this story"
+          : isOwnArticle ? "Cannot Amplify your own story"
+          : amplified ? "Already amplified"
+          : "Amplify this story"
+        }
         className={`inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold transition-all ${
           amplified
             ? "bg-sky-500/20 text-sky-400 border border-sky-500/30"
+            : !keyHex
+            ? "border border-zinc-800 text-zinc-600 hover:border-sky-500/40 hover:text-sky-500 cursor-pointer"
             : "border border-zinc-800 text-zinc-500 hover:border-sky-500/30 hover:bg-sky-500/10 hover:text-sky-400"
         } disabled:opacity-40 disabled:cursor-not-allowed`}
       >
@@ -139,22 +159,35 @@ export function SocialBar({ articleId, authorPubkey, articleContent, lightningAd
         <span>{isAmplifying ? "Amplifying…" : amplified ? "Amplified" : "Amplify"}</span>
       </button>
 
-      {/* Watch */}
+      {/* Watch — full toggle, redirects to login if not logged in */}
       <button
         onClick={handleWatch}
-        disabled={!keyHex || isTogglingWatch}
-        title={!keyHex ? "Log in to Watch" : isWatching ? "Unwatch this story" : "Watch this story"}
-        className={`inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold transition-all ${
+        disabled={isTogglingWatch}
+        title={
+          !keyHex ? "Log in to Watch this story"
+          : isWatching ? "Click to Unwatch"
+          : "Watch this story"
+        }
+        className={`group inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold transition-all ${
           isWatching
-            ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
+            ? "bg-amber-500/20 text-amber-400 border border-amber-500/30 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400"
+            : !keyHex
+            ? "border border-zinc-800 text-zinc-600 hover:border-amber-500/40 hover:text-amber-500 cursor-pointer"
             : "border border-zinc-800 text-zinc-500 hover:border-amber-500/30 hover:bg-amber-500/10 hover:text-amber-400"
         } disabled:opacity-40 disabled:cursor-not-allowed`}
       >
-        <span>🔖</span>
-        <span>{isTogglingWatch ? "…" : isWatching ? "Watching" : "Watch"}</span>
+        <span>{isWatching ? "🔖" : "🔖"}</span>
+        <span>
+          {isTogglingWatch ? "…" : isWatching ? (
+            <>
+              <span className="group-hover:hidden">Watching</span>
+              <span className="hidden group-hover:inline">Unwatch</span>
+            </>
+          ) : "Watch"}
+        </span>
       </button>
 
-      {/* Protect (Lightning) */}
+      {/* Protect (Lightning) — no login required, anyone can protect */}
       {lightningAddress && (
         <button
           onClick={(e) => { e.stopPropagation(); setZapOpen(true) }}
@@ -166,7 +199,7 @@ export function SocialBar({ articleId, authorPubkey, articleContent, lightningAd
         </button>
       )}
 
-      {/* Protect modal (Zap) — lazy import to keep bundle lean */}
+      {/* Protect modal */}
       {zapOpen && lightningAddress && (
         <ProtectModal
           lightningAddress={lightningAddress}
