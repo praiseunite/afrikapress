@@ -4,6 +4,7 @@ import "./globals.css"
 import { LocaleProvider } from "@/components/shared/LocaleProvider"
 import { Navbar } from "@/components/shared/Navbar";
 import { ServiceWorkerCleaner } from "@/components/shared/ServiceWorkerCleaner";
+import { DetainedTrackerButton } from "@/components/shared/DetainedTrackerButton";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -45,6 +46,7 @@ export default function RootLayout({
           <ServiceWorkerCleaner />
           <Navbar />
           <main>{children}</main>
+          <DetainedTrackerButton />
         </LocaleProvider>
       </body>
     </html>
