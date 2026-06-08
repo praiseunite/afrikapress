@@ -85,6 +85,19 @@ Open [http://localhost:3000](http://localhost:3000)
 
 ---
 
+## Documenting the Crackdown (2025–2026)
+
+AfrikaPress was built in direct response to the escalating persecution of journalists and activists in Nigeria. Recent data highlights the urgent need for a censorship-resistant publishing and payment platform:
+
+*   **Sodeeq Atanda & Daniel Ojukwu (FIJ):** Investigative journalists from the Foundation for Investigative Journalism repeatedly targeted, abducted, and detained by police forces (IRT and IGP Monitoring Unit) using the Cybercrimes Act to punish their reporting.
+*   **Omoyele Sowore (SaharaReporters):** A prominent activist and publisher subjected to frequent harassment and multiple arrests following his participation in protests and criticism of the government.
+*   **The #EndBadGovernance 11:** Protest leaders (including Adaramoye Michael Lenin and Daniel Akande) arrested during the August 2024 economic hardship protests and baselessly charged with "treasonable felony" and "terrorism" before being acquitted in December 2025.
+*   **Okey Ndibe:** Writer and public intellectual briefly detained by the State Security Service (SSS) at Lagos airport in June 2026, demonstrating the state's willingness to intimidate government critics.
+
+*(Data sourced from the Committee to Protect Journalists, Amnesty International, FIJ, and Premium Times.)*
+
+---
+
 ## Grant Applications
 
 AfrikaPress is applying for open-source funding from:
